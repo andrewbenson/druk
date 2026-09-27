@@ -40,12 +40,14 @@ export async function launch(
     openCol?: number
     checkUpdates?: boolean
     kittyKeyboard?: boolean
+    diffs?: boolean
   } = {}
 ) {
   const t = await testRender(
     () =>
       Root({
         checkUpdates: options.checkUpdates ?? false,
+        diffs: options.diffs,
         initialConfig: {
           ...DEFAULTS,
           // A row of chrome would shift every frame assertion; the breadcrumb tests opt in.

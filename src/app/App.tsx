@@ -111,6 +111,8 @@ export function App(props: {
   openLine?: number | null
   // 0-based column to land on, beside `openLine`.
   openCol?: number | null
+  // `druk diffs`: the changes page with the sidebar hidden, as `druk one.ts` opens one file.
+  diffs?: boolean
   initialConfig: Config
   initialProject?: Partial<Config>
   checkUpdates?: boolean
@@ -123,7 +125,7 @@ export function App(props: {
   const projectName = basename(rootDir) || rootDir
   const single = props.openFile ?? null
 
-  const restored = restoreWorkspace(rootDir, single)
+  const restored = restoreWorkspace(rootDir, single, props.diffs)
 
   const status = createStatus()
   copyOnSelect(status.say)
@@ -179,6 +181,7 @@ export function App(props: {
     settings,
     single,
     status,
+    transient: props.diffs,
     tree,
   })
   const extensionsPanel = createExtensionsPanel({
@@ -319,6 +322,10 @@ export function App(props: {
   wireLspEffects({ lsp, settings, workspace })
   const { commands, actions } = createCommands(ctx)
   const keyboard = installKeyboard(ctx, actions)
+
+  if (props.diffs) {
+    workspace.openPage('allChanges')
+  }
 
   // After the keymap, so the peek never sees an unresolved chord.
   useTooltipPeek()

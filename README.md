@@ -27,6 +27,7 @@ on Fedora or openSUSE the `.rpm` (`sudo rpm -U druk-*.rpm`). macOS (arm64, x64),
 Linux (arm64, x64) and Windows (x64).
 
 `druk update` upgrades whichever way you installed, printing the command first.
+`druk diffs [path]` opens straight on the uncommitted changes, sidebar hidden.
 
 <details>
 <summary>Install options</summary>

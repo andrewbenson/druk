@@ -573,7 +573,9 @@ is just a diff against the empty tree.
   `saveSession` entirely. Skipping the write is the part worth keeping: the folder's own
   layout is not this invocation's to overwrite with a one-tab, no-sidebar session. Nothing
   else in the app branches on it; `Ctrl+B`, the tree, search and git all work normally
-  because `rootDir` is still a real directory.
+  because `rootDir` is still a real directory. `druk diffs` is the same entry state
+  with no file at all (`diffs` on `App`, `restoreWorkspace`'s `empty`, `transient` on
+  `createWorkspace`) and the changes page opened on mount.
 - **One move function, because a folder move invalidates paths in bulk.** `movePath` in
   `src/app/fileOps.ts` backs renaming and `x`/`p` alike: it renames on disk and then
   remaps every tab, buffer, preview and expanded entry *at or under* the old path. A

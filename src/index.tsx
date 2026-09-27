@@ -16,11 +16,16 @@ if (process.argv[2] === 'update') {
   process.exit(await runUpgrade())
 }
 
-const target = resolveTarget(process.argv[2], process.cwd())
+const diffs = process.argv[2] === 'diffs'
+const arg = process.argv[diffs ? 3 : 2]
+const target = resolveTarget(arg, process.cwd())
 if (!target) {
-  process.stderr.write(`druk: no such file or directory: ${process.argv[2]}\n`)
+  process.stderr.write(`druk: no such file or directory: ${arg}\n`)
   process.exit(1)
 }
 
 const { main } = await import('./main')
-await main(target)
+await main(
+  diffs ? { ...target, col: null, line: null, openFile: null } : target,
+  diffs
+)

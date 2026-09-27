@@ -14,7 +14,7 @@ import { loadExtensions } from './extensions'
 import { highlightClient } from './languages/highlight'
 import { setTheme } from './themes'
 
-export async function main(target: Target): Promise<void> {
+export async function main(target: Target, diffs = false): Promise<void> {
   // The staged root existed only for @opentui/core's own import; later lookups use the bundle.
   releaseAssetRoot()
 
@@ -41,6 +41,7 @@ export async function main(target: Target): Promise<void> {
         openFile={openFile}
         openLine={target.line}
         openCol={target.col}
+        diffs={diffs}
         initialConfig={config}
         initialProject={project}
         reloadConfig={loadConfig}

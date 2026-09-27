@@ -33,6 +33,7 @@ export function Root(props: {
   openFile?: string | null
   openLine?: number | null
   openCol?: number | null
+  diffs?: boolean
   initialConfig: Config
   initialProject?: Partial<Config>
   checkUpdates?: boolean
@@ -78,6 +79,7 @@ export function Root(props: {
           openFile={at.openFile}
           openLine={at.openLine}
           openCol={at.openCol}
+          diffs={at.first && props.diffs}
           initialConfig={at.config}
           initialProject={at.project}
           checkUpdates={at.first && props.checkUpdates}

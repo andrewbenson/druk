@@ -76,7 +76,21 @@ const loadBuffer = (path: string): FileBuffer => {
 }
 
 // Synchronous on purpose: the editor mounts with these buffers, or it renders an empty document.
-export function restoreWorkspace(rootDir: string, single: string | null) {
+export function restoreWorkspace(
+  rootDir: string,
+  single: string | null,
+  empty = false
+) {
+  if (empty) {
+    return {
+      activePath: null as string | null,
+      buffers: {} as Record<string, FileBuffer>,
+      expanded: [] as string[],
+      failed: null as string | null,
+      sidebar: false,
+      tabs: [] as string[],
+    }
+  }
   if (single) {
     try {
       const buffers: Record<string, FileBuffer> = isImagePath(single)
@@ -135,6 +149,8 @@ type RestoredWorkspace = ReturnType<typeof restoreWorkspace>
 export function createWorkspace(deps: {
   rootDir: string
   single: string | null
+  // Saves no session: `druk diffs` must not overwrite the folder's layout.
+  transient?: boolean
   restored: RestoredWorkspace
   settings: Settings
   status: Status
@@ -147,6 +163,7 @@ export function createWorkspace(deps: {
   const {
     rootDir,
     single,
+    transient,
     restored,
     settings,
     status,
@@ -1264,7 +1281,7 @@ export function createWorkspace(deps: {
       () => [tabs(), activePath(), tree.expanded(), panes.sidebar()] as const,
       ([openTabs, active, folders, showTree]) => {
         // `druk one.ts` must not save a one-tab layout over the folder's session.
-        if (single) {
+        if (single || transient) {
           return
         }
         saveSession(rootDir, {
