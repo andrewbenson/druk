@@ -110,6 +110,8 @@ export function installKeyboard(ctx: AppContext, actions: CommandActions) {
     'tabs.prev': () => workspace.switchTab(-1),
     'tabs.reopen': workspace.reopenTab,
     'tabs.switch': () => overlays.setPicker('tabs'),
+    'tree.closeBelow': actions.treeCloseBelow,
+    'tree.openBelow': actions.treeOpenBelow,
     'view.collapse': actions.collapseSidebar,
     'view.extensions': () => panes.toggleView('extensions'),
     'view.focus': actions.toggleFocus,
@@ -190,6 +192,17 @@ export function installKeyboard(ctx: AppContext, actions: CommandActions) {
         panes.focusTree()
       }
       return
+    }
+
+    if (
+      panes.view() === 'files' &&
+      (key.option || key.meta) &&
+      !key.ctrl &&
+      (k === 'right' || k === 'left')
+    ) {
+      return claim(
+        k === 'right' ? actions.treeOpenBelow : actions.treeCloseBelow
+      )
     }
 
     // The cases below switch on bare key names: Ctrl+D would open the delete prompt.

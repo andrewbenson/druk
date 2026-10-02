@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 
-import { fixture, launch, press, settle, until } from './helpers'
+import { fixture, launch, press, runCommand, settle, until } from './helpers'
 import type { Harness } from './helpers'
 
 const files = {
@@ -39,4 +39,28 @@ test('a plain click still opens one level', async () => {
   await press(t, () => t.mockMouse.click(at.x, at.y))
   await until(t, () => t.captureCharFrame().includes('deep'))
   expect(t.captureCharFrame()).not.toContain('c.ts')
+})
+
+test('Option+→ / ← on the keyboard opens and shuts everything below the folder', async () => {
+  const t = await launch(fixture(files))
+  await press(t, (i) => i.pressArrow('down'))
+
+  await press(t, (i) => i.pressArrow('right', { meta: true }))
+  await until(t, () => t.captureCharFrame().includes('c.ts'))
+  expect(t.captureCharFrame()).toContain('more')
+
+  await press(t, (i) => i.pressArrow('left', { meta: true }))
+  expect(t.captureCharFrame()).not.toContain('deep')
+  expect(t.captureCharFrame()).toContain('src')
+})
+
+test('the palette does the same for the folder under the cursor', async () => {
+  const t = await launch(fixture(files))
+  await press(t, (i) => i.pressArrow('down'))
+
+  await runCommand(t, 'Expand folder and its subfolders')
+  await until(t, () => t.captureCharFrame().includes('c.ts'))
+
+  await runCommand(t, 'Collapse folder and its subfolders')
+  await until(t, () => !t.captureCharFrame().includes('deep'))
 })

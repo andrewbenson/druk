@@ -114,24 +114,22 @@ export function createTree(
     return out
   }
 
-  // Finder's Option-click: open the folder with everything below it, or shut all of it.
-  const toggleExpandAll = (path: string) =>
+  const setExpandedBelow = (path: string, open: boolean) =>
     setExpanded((prev) => {
       const next = new Set(prev)
-      const below = subfolders(path)
-      if (prev.has(path)) {
-        next.delete(path)
-        for (const dir of below) {
-          next.delete(dir)
-        }
-      } else {
-        next.add(path)
-        for (const dir of below) {
+      for (const dir of [path, ...subfolders(path)]) {
+        if (open) {
           next.add(dir)
+        } else {
+          next.delete(dir)
         }
       }
       return next
     })
+
+  // Finder's Option-click: open the folder with everything below it, or shut all of it.
+  const toggleExpandAll = (path: string) =>
+    setExpandedBelow(path, !expanded().has(path))
 
   const reveal = (path: string) => {
     const parts = path.startsWith(rootDir)
@@ -237,6 +235,7 @@ export function createTree(
     reveal,
     selectedNode,
     selectedPath,
+    setExpandedBelow,
     setSelectedPath,
     targetDir,
     toggleExpand,
