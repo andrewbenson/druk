@@ -99,14 +99,16 @@ export function FileTree(props: FileTreeProps) {
   )
 
   // OpenTUI has no double-click event, so detect it from consecutive downs.
-  let lastClick = { at: 0, path: '' }
+  let lastClick = { at: 0, path: '', recursive: false }
 
   const click = (node: TreeNode, recursive: boolean) => {
     props.onFocus()
     const now = Date.now()
     const isDouble =
-      lastClick.path === node.path && now - lastClick.at < DOUBLE_CLICK_MS
-    lastClick = { at: now, path: node.path }
+      lastClick.path === node.path &&
+      lastClick.recursive === recursive &&
+      now - lastClick.at < DOUBLE_CLICK_MS
+    lastClick = { at: now, path: node.path, recursive }
     // Activating a folder toggles it: the second click would close what the first opened.
     if (isDouble && node.isDir) {
       return

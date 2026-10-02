@@ -117,10 +117,16 @@ export function createTree(
   const setExpandedBelow = (path: string, open: boolean) =>
     setExpanded((prev) => {
       const next = new Set(prev)
-      for (const dir of [path, ...subfolders(path)]) {
-        if (open) {
+      if (open) {
+        next.add(path)
+        for (const dir of subfolders(path)) {
           next.add(dir)
-        } else {
+        }
+        return next
+      }
+      // From the set, not the disk: a folder the walk skipped (filtered, past the cap) must not stay open.
+      for (const dir of prev) {
+        if (dir === path || dir.startsWith(`${path}${sep}`)) {
           next.delete(dir)
         }
       }

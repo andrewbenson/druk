@@ -42,3 +42,20 @@ test('a changed row gets a fresh object', () => {
     dispose()
   })
 })
+
+test('shutting a folder drops every expanded path under it, on disk or not', () => {
+  const dir = fixture({ 'a.ts': '', 'src/deep/b.ts': '' })
+  const src = join(dir, 'src')
+  const outside = join(dir, 'srcish')
+  createRoot((dispose) => {
+    const tree = createTree(dir, {
+      expanded: [src, join(src, 'deep'), join(src, 'ghost', 'gone'), outside],
+      selected: null,
+    })
+
+    tree.setExpandedBelow(src, false)
+
+    expect([...tree.expanded()]).toEqual([outside])
+    dispose()
+  })
+})

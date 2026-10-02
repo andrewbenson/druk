@@ -75,3 +75,16 @@ test('Option+→ / ← as terminals send them, ESC f and ESC b, do the same', as
   await press(t, (i) => i.pressKey('b', { meta: true }))
   expect(t.captureCharFrame()).not.toContain('deep')
 })
+
+test('an Option-click straight after a plain click is not taken for a double click', async () => {
+  const t = await launch(fixture(files))
+  const at = rowOf(t, 'src')
+
+  await press(t, () => t.mockMouse.click(at.x, at.y))
+  await until(t, () => t.captureCharFrame().includes('deep'))
+  await press(t, () =>
+    t.mockMouse.click(at.x, at.y, undefined, { modifiers: { alt: true } })
+  )
+
+  await until(t, () => !t.captureCharFrame().includes('deep'))
+})
