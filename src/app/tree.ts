@@ -3,7 +3,7 @@ import { dirname, join, sep } from 'node:path'
 import { createMemo, createSignal } from 'solid-js'
 
 import type { Config } from '../core/config'
-import { flattenVisible } from '../core/fs'
+import { flattenVisible, listDir, realPath } from '../core/fs'
 import type { TreeNode } from '../core/fs'
 import { ignoredPaths } from '../core/git'
 import { enclosingRepo } from '../core/repos'
@@ -87,6 +87,48 @@ export function createTree(
       const next = new Set(prev)
       if (!next.delete(path)) {
         next.add(path)
+      }
+      return next
+    })
+
+  // A cap, since an unhidden node_modules is hundreds of thousands of folders.
+  const subfolders = (root: string, limit = 5000): string[] => {
+    const skip = hidden?.() ?? undefined
+    const out: string[] = []
+    const branch = new Set<string>()
+    const walk = (dir: string) => {
+      const real = realPath(dir)
+      if (branch.has(real) || out.length >= limit) {
+        return
+      }
+      branch.add(real)
+      for (const node of listDir(dir)) {
+        if (node.isDir && !skip?.(node) && out.length < limit) {
+          out.push(node.path)
+          walk(node.path)
+        }
+      }
+      branch.delete(real)
+    }
+    walk(root)
+    return out
+  }
+
+  // Finder's Option-click: open the folder with everything below it, or shut all of it.
+  const toggleExpandAll = (path: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      const below = subfolders(path)
+      if (prev.has(path)) {
+        next.delete(path)
+        for (const dir of below) {
+          next.delete(dir)
+        }
+      } else {
+        next.add(path)
+        for (const dir of below) {
+          next.add(dir)
+        }
       }
       return next
     })
@@ -198,6 +240,7 @@ export function createTree(
     setSelectedPath,
     targetDir,
     toggleExpand,
+    toggleExpandAll,
   }
 }
 

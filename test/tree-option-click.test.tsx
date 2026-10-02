@@ -1,0 +1,42 @@
+import { expect, test } from 'bun:test'
+
+import { fixture, launch, press, settle, until } from './helpers'
+import type { Harness } from './helpers'
+
+const files = {
+  'a.ts': 'const a = 1\n',
+  'src/deep/b.ts': 'const b = 2\n',
+  'src/deep/more/c.ts': 'const c = 3\n',
+}
+
+const rowOf = (t: Harness, name: string) => {
+  const rows = t.captureCharFrame().split('\n')
+  const y = rows.findIndex((row, i) => i > 0 && row.includes(name))
+  return { x: rows[y]!.indexOf(name), y }
+}
+
+test('Option-click opens a folder with everything below it, and shuts it the same way', async () => {
+  const t = await launch(fixture(files))
+  const at = rowOf(t, 'src')
+
+  await press(t, () =>
+    t.mockMouse.click(at.x, at.y, undefined, { modifiers: { alt: true } })
+  )
+  await until(t, () => t.captureCharFrame().includes('c.ts'))
+  expect(t.captureCharFrame()).toContain('more')
+
+  await settle(t, 600)
+  await press(t, () =>
+    t.mockMouse.click(at.x, at.y, undefined, { modifiers: { alt: true } })
+  )
+  expect(t.captureCharFrame()).not.toContain('deep')
+})
+
+test('a plain click still opens one level', async () => {
+  const t = await launch(fixture(files))
+  const at = rowOf(t, 'src')
+
+  await press(t, () => t.mockMouse.click(at.x, at.y))
+  await until(t, () => t.captureCharFrame().includes('deep'))
+  expect(t.captureCharFrame()).not.toContain('c.ts')
+})

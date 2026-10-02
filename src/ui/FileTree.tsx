@@ -24,7 +24,7 @@ interface FileTreeProps {
   cutPaths: string[]
   markedPaths: string[]
   iconTheme: string
-  onActivate: (node: TreeNode) => void
+  onActivate: (node: TreeNode, recursive?: boolean) => void
   onPin: (node: TreeNode) => void
   onFocus: () => void
   onCollapseAll: () => void
@@ -101,7 +101,7 @@ export function FileTree(props: FileTreeProps) {
   // OpenTUI has no double-click event, so detect it from consecutive downs.
   let lastClick = { at: 0, path: '' }
 
-  const click = (node: TreeNode) => {
+  const click = (node: TreeNode, recursive: boolean) => {
     props.onFocus()
     const now = Date.now()
     const isDouble =
@@ -111,7 +111,7 @@ export function FileTree(props: FileTreeProps) {
     if (isDouble && node.isDir) {
       return
     }
-    props.onActivate(node)
+    props.onActivate(node, recursive)
     if (isDouble) {
       props.onPin(node)
     }
@@ -196,7 +196,7 @@ export function FileTree(props: FileTreeProps) {
               height={1}
               flexDirection="row"
               backgroundColor={bg()}
-              onMouseDown={() => click(node)}
+              onMouseDown={(event) => click(node, event.modifiers.alt)}
               onMouseOver={() => rowHover.enter(node.path)}
               onMouseOut={() => rowHover.leave(node.path)}
             >

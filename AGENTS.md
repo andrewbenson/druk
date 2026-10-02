@@ -11,7 +11,9 @@ reconciler on a native Zig core). Shipped as a standalone binary — npm, Homebr
 installer — and run as a CLI.
 
 Features: file tree with bulk file operations and opt-in hiding of dotfiles and
-git-ignored files, the sidebar (Files / Git / Review / Extensions) on the left or the right
+git-ignored files, Option-click on a folder opening everything below it — or shutting
+all of it — as Finder does (`toggleExpandAll` in `src/app/tree.ts`, which honours the
+hidden-file filters, follows no symlink loop and stops at 5000 folders), the sidebar (Files / Git / Review / Extensions) on the left or the right
 (`sidebarPosition`, settings → Files → Sidebar position, or palette → View →
 Toggle sidebar position), a `▴` in the sidebar header that shuts every folder at once
 (palette → View → Collapse folders in sidebar, which folds whichever of the two
