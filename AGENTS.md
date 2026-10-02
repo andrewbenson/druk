@@ -12,7 +12,8 @@ installer — and run as a CLI.
 
 Features: file tree with bulk file operations and opt-in hiding of dotfiles and
 git-ignored files, Option-click or Option+→/← (tree focus only — bare Option+arrow is the editor's
-word motion, so it is not a global `BINDABLE` default; palette → View → Expand / Collapse folder
+word motion, so it is not a global `BINDABLE` default, and Ghostty, iTerm2 and Terminal.app
+send it as ESC f / ESC b, so Option+F / B do the same there; palette → View → Expand / Collapse folder
 and its subfolders are the unbound-by-default commands) on a folder opening everything below
 it — or shutting all of it — as Finder does (`setExpandedBelow` in `src/app/tree.ts`, which
 honours the hidden-file filters, follows no symlink loop and stops at 5000 folders), the sidebar (Files / Git / Review / Extensions) on the left or the right

@@ -194,14 +194,17 @@ export function installKeyboard(ctx: AppContext, actions: CommandActions) {
       return
     }
 
+    // Ghostty, iTerm2 and Terminal.app send Option+→/← as ESC f / ESC b, the shell's word jumps.
     if (
       panes.view() === 'files' &&
       (key.option || key.meta) &&
       !key.ctrl &&
-      (k === 'right' || k === 'left')
+      (k === 'right' || k === 'left' || k === 'f' || k === 'b')
     ) {
       return claim(
-        k === 'right' ? actions.treeOpenBelow : actions.treeCloseBelow
+        k === 'right' || k === 'f'
+          ? actions.treeOpenBelow
+          : actions.treeCloseBelow
       )
     }
 

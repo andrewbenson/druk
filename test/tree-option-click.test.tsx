@@ -64,3 +64,14 @@ test('the palette does the same for the folder under the cursor', async () => {
   await runCommand(t, 'Collapse folder and its subfolders')
   await until(t, () => !t.captureCharFrame().includes('deep'))
 })
+
+test('Option+→ / ← as terminals send them, ESC f and ESC b, do the same', async () => {
+  const t = await launch(fixture(files))
+  await press(t, (i) => i.pressArrow('down'))
+
+  await press(t, (i) => i.pressKey('f', { meta: true }))
+  await until(t, () => t.captureCharFrame().includes('c.ts'))
+
+  await press(t, (i) => i.pressKey('b', { meta: true }))
+  expect(t.captureCharFrame()).not.toContain('deep')
+})
