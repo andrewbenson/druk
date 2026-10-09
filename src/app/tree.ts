@@ -3,7 +3,7 @@ import { dirname, join, sep } from 'node:path'
 import { createMemo, createSignal } from 'solid-js'
 
 import type { Config } from '../core/config'
-import { flattenVisible, listDir, realPath } from '../core/fs'
+import { flattenVisible, subfolders } from '../core/fs'
 import type { TreeNode } from '../core/fs'
 import { ignoredPaths } from '../core/git'
 import { enclosingRepo } from '../core/repos'
@@ -91,35 +91,21 @@ export function createTree(
       return next
     })
 
-  // A cap, since an unhidden node_modules is hundreds of thousands of folders.
-  const subfolders = (root: string, limit = 5000): string[] => {
-    const skip = hidden?.() ?? undefined
-    const out: string[] = []
-    const branch = new Set<string>()
-    const walk = (dir: string) => {
-      const real = realPath(dir)
-      if (branch.has(real) || out.length >= limit) {
-        return
-      }
-      branch.add(real)
-      for (const node of listDir(dir)) {
-        if (node.isDir && !skip?.(node) && out.length < limit) {
-          out.push(node.path)
-          walk(node.path)
-        }
-      }
-      branch.delete(real)
-    }
-    walk(root)
-    return out
-  }
-
-  const setExpandedBelow = (path: string, open: boolean) =>
+  const setExpandedBelow = (path: string, open: boolean) => {
+    // Ignored whatever `respectGitignore` says: opening every folder of a node_modules freezes the tree.
+    const ignored = hiddenNodes(rootDir, {
+      respectGitignore: true,
+      showDotfiles: true,
+    })
+    const tidy = hidden?.()
+    const below = open
+      ? subfolders(path, (node) => Boolean(tidy?.(node) || ignored?.(node)))
+      : []
     setExpanded((prev) => {
       const next = new Set(prev)
       if (open) {
         next.add(path)
-        for (const dir of subfolders(path)) {
+        for (const dir of below) {
           next.add(dir)
         }
         return next
@@ -132,8 +118,8 @@ export function createTree(
       }
       return next
     })
+  }
 
-  // Finder's Option-click: open the folder with everything below it, or shut all of it.
   const toggleExpandAll = (path: string) =>
     setExpandedBelow(path, !expanded().has(path))
 
